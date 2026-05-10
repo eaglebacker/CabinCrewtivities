@@ -15,7 +15,7 @@ export default function Navbar() {
       <div className="max-w-4xl mx-auto px-4">
         <div className="flex justify-between items-center h-14">
           <Link to="/" className="font-bold text-lg text-blue-600">
-            Friend Planner
+            Cabin Crewtivities
           </Link>
 
           <div className="flex items-center gap-4">

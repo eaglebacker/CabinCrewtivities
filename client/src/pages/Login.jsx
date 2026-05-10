@@ -28,7 +28,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="max-w-md w-full">
-        <h1 className="text-3xl font-bold text-center mb-8">Friend Planner</h1>
+        <h1 className="text-3xl font-bold text-center mb-8">Cabin Crewtivities</h1>
 
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-6">Login</h2>
