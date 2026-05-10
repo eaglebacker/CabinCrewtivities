@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../api/client';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -11,6 +11,8 @@ export default function Calendar() {
   const [myDates, setMyDates] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
   const [loading, setLoading] = useState(true);
+  const longPressTimer = useRef(null);
+  const isLongPress = useRef(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -75,6 +77,25 @@ export default function Calendar() {
     return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   };
 
+  const handleTouchStart = (day) => {
+    isLongPress.current = false;
+    longPressTimer.current = setTimeout(() => {
+      isLongPress.current = true;
+      setSelectedDay(selectedDay === day ? null : day);
+    }, 500);
+  };
+
+  const handleTouchEnd = (day) => {
+    clearTimeout(longPressTimer.current);
+    if (!isLongPress.current) {
+      toggleAvailability(day);
+    }
+  };
+
+  const handleTouchMove = () => {
+    clearTimeout(longPressTimer.current);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
       <div className="flex justify-between items-center mb-4">
@@ -120,15 +141,22 @@ export default function Calendar() {
             return (
               <button
                 key={idx}
-                onClick={() => toggleAvailability(day)}
+                onClick={() => {
+                  if (!('ontouchstart' in window)) {
+                    toggleAvailability(day);
+                  }
+                }}
                 onContextMenu={(e) => {
                   e.preventDefault();
                   setSelectedDay(selectedDay === day ? null : day);
                 }}
+                onTouchStart={() => handleTouchStart(day)}
+                onTouchEnd={() => handleTouchEnd(day)}
+                onTouchMove={handleTouchMove}
                 className={`
                   aspect-square rounded-lg text-sm relative
                   flex flex-col items-center justify-center
-                  transition-colors
+                  transition-colors select-none
                   ${isAvailable
                     ? 'bg-green-100 text-green-800 hover:bg-green-200'
                     : 'bg-gray-50 hover:bg-gray-100'
@@ -148,8 +176,14 @@ export default function Calendar() {
       )}
 
       {selectedDay && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <h3 className="font-medium mb-2">
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg relative">
+          <button
+            onClick={() => setSelectedDay(null)}
+            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full text-lg leading-none"
+          >
+            &times;
+          </button>
+          <h3 className="font-medium mb-2 pr-6">
             {MONTHS[month]} {selectedDay} - Available:
           </h3>
           {availability[getDateStr(selectedDay)]?.length > 0 ? (
@@ -161,12 +195,6 @@ export default function Calendar() {
           ) : (
             <p className="text-sm text-gray-500">No one available</p>
           )}
-          <button
-            onClick={() => setSelectedDay(null)}
-            className="mt-2 text-xs text-blue-600"
-          >
-            Close
-          </button>
         </div>
       )}
 
