@@ -73,6 +73,15 @@ export const api = {
   deleteCalendarEvent: (id) =>
     request(`/api/calendar/events/${id}`, { method: 'DELETE' }),
 
+  // RSVPs
+  rsvpToEvent: (eventId, status) =>
+    request(`/api/calendar/events/${eventId}/rsvp`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    }),
+  removeRsvp: (eventId) =>
+    request(`/api/calendar/events/${eventId}/rsvp`, { method: 'DELETE' }),
+
   // Activities
   getActivities: () => request('/api/activities'),
   getActivity: (id) => request(`/api/activities/${id}`),

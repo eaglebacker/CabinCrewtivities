@@ -57,7 +57,18 @@ CREATE TABLE IF NOT EXISTS calendar_events (
   UNIQUE(activity_id, date)
 );
 
+-- Event RSVPs
+CREATE TABLE IF NOT EXISTS event_rsvps (
+  id SERIAL PRIMARY KEY,
+  event_id INTEGER REFERENCES calendar_events(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  status VARCHAR(20) NOT NULL CHECK (status IN ('attending', 'declined')),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(event_id, user_id)
+);
+
 -- Index for faster calendar queries
 CREATE INDEX IF NOT EXISTS idx_availability_date ON availability(date);
 CREATE INDEX IF NOT EXISTS idx_activities_event_date ON activities(event_date);
 CREATE INDEX IF NOT EXISTS idx_calendar_events_date ON calendar_events(date);
+CREATE INDEX IF NOT EXISTS idx_event_rsvps_event ON event_rsvps(event_id);

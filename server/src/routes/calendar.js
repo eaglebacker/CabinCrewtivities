@@ -100,7 +100,7 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
-// Get events for a month
+// Get events for a month (with RSVPs)
 router.get('/events', authMiddleware, async (req, res) => {
   try {
     const { month } = req.query;
@@ -113,7 +113,8 @@ router.get('/events', authMiddleware, async (req, res) => {
     const endDate = new Date(parseInt(month.split('-')[0]), parseInt(month.split('-')[1]), 0)
       .toISOString().split('T')[0];
 
-    const result = await db.query(`
+    // Get events
+    const eventsResult = await db.query(`
       SELECT ce.id, ce.date, ce.activity_id, a.name as activity_name,
              u.display_name as created_by_name, ce.created_by
       FROM calendar_events ce
@@ -123,18 +124,54 @@ router.get('/events', authMiddleware, async (req, res) => {
       ORDER BY ce.date, a.name
     `, [startDate, endDate]);
 
+    // Get RSVPs for these events
+    const eventIds = eventsResult.rows.map(r => r.id);
+    let rsvpsByEvent = {};
+
+    if (eventIds.length > 0) {
+      const rsvpsResult = await db.query(`
+        SELECT er.event_id, er.user_id, er.status, u.display_name
+        FROM event_rsvps er
+        JOIN users u ON er.user_id = u.id
+        WHERE er.event_id = ANY($1)
+      `, [eventIds]);
+
+      rsvpsResult.rows.forEach(row => {
+        if (!rsvpsByEvent[row.event_id]) {
+          rsvpsByEvent[row.event_id] = { attending: [], declined: [] };
+        }
+        rsvpsByEvent[row.event_id][row.status].push({
+          userId: row.user_id,
+          displayName: row.display_name
+        });
+      });
+    }
+
+    // Get current user's RSVPs
+    const myRsvpsResult = await db.query(`
+      SELECT event_id, status FROM event_rsvps WHERE user_id = $1
+    `, [req.user.userId]);
+
+    const myRsvps = {};
+    myRsvpsResult.rows.forEach(row => {
+      myRsvps[row.event_id] = row.status;
+    });
+
     // Group by date
     const events = {};
-    result.rows.forEach(row => {
+    eventsResult.rows.forEach(row => {
       const dateStr = row.date.toISOString().split('T')[0];
       if (!events[dateStr]) {
         events[dateStr] = [];
       }
+      const eventRsvps = rsvpsByEvent[row.id] || { attending: [], declined: [] };
       events[dateStr].push({
         id: row.id,
         activityId: row.activity_id,
         activityName: row.activity_name,
-        createdBy: { id: row.created_by, displayName: row.created_by_name }
+        createdBy: { id: row.created_by, displayName: row.created_by_name },
+        rsvps: eventRsvps,
+        myRsvp: myRsvps[row.id] || null
       });
     });
 
@@ -210,6 +247,50 @@ router.delete('/events/:id', authMiddleware, async (req, res) => {
     res.json({ message: 'Event removed' });
   } catch (err) {
     console.error('Delete event error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// RSVP to an event
+router.post('/events/:id/rsvp', authMiddleware, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const eventId = req.params.id;
+
+    if (!status || !['attending', 'declined'].includes(status)) {
+      return res.status(400).json({ error: 'Status must be "attending" or "declined"' });
+    }
+
+    // Check event exists
+    const eventCheck = await db.query('SELECT id FROM calendar_events WHERE id = $1', [eventId]);
+    if (eventCheck.rows.length === 0) {
+      return res.status(404).json({ error: 'Event not found' });
+    }
+
+    await db.query(`
+      INSERT INTO event_rsvps (event_id, user_id, status)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (event_id, user_id) DO UPDATE SET status = $3
+    `, [eventId, req.user.userId, status]);
+
+    res.json({ eventId: parseInt(eventId), status });
+  } catch (err) {
+    console.error('RSVP error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Remove RSVP from an event
+router.delete('/events/:id/rsvp', authMiddleware, async (req, res) => {
+  try {
+    await db.query(
+      'DELETE FROM event_rsvps WHERE event_id = $1 AND user_id = $2',
+      [req.params.id, req.user.userId]
+    );
+
+    res.json({ message: 'RSVP removed' });
+  } catch (err) {
+    console.error('Remove RSVP error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });

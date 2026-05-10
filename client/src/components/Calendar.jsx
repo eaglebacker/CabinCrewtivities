@@ -146,6 +146,15 @@ export default function Calendar() {
     }
   };
 
+  const handleRsvp = async (eventId, status) => {
+    try {
+      await api.rsvpToEvent(eventId, status);
+      await loadData();
+    } catch (err) {
+      console.error('Failed to RSVP:', err);
+    }
+  };
+
   const dayEvents = selectedDay ? (events[getDateStr(selectedDay)] || []) : [];
 
   return (
@@ -246,20 +255,64 @@ export default function Calendar() {
           {/* Events Section */}
           {dayEvents.length > 0 && (
             <div className="mb-3">
-              <p className="text-sm font-medium text-gray-600 mb-1">Events:</p>
-              <ul className="text-sm space-y-1">
+              <p className="text-sm font-medium text-gray-600 mb-2">Events:</p>
+              <div className="space-y-3">
                 {dayEvents.map(event => (
-                  <li key={event.id} className="flex justify-between items-center bg-blue-50 px-2 py-1 rounded">
-                    <span className="text-blue-800">{event.activityName}</span>
-                    <button
-                      onClick={() => handleRemoveEvent(event.id)}
-                      className="text-red-500 hover:text-red-700 text-xs"
-                    >
-                      Remove
-                    </button>
-                  </li>
+                  <div key={event.id} className="bg-blue-50 p-3 rounded-lg">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="font-medium text-blue-800">{event.activityName}</span>
+                      <button
+                        onClick={() => handleRemoveEvent(event.id)}
+                        className="text-red-500 hover:text-red-700 text-xs"
+                      >
+                        Remove
+                      </button>
+                    </div>
+
+                    {/* RSVP Buttons */}
+                    <div className="flex gap-2 mb-2">
+                      <button
+                        onClick={() => handleRsvp(event.id, 'attending')}
+                        className={`flex-1 py-1 px-2 rounded text-xs font-medium transition-colors ${
+                          event.myRsvp === 'attending'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-white border border-green-600 text-green-600 hover:bg-green-50'
+                        }`}
+                      >
+                        Attending
+                      </button>
+                      <button
+                        onClick={() => handleRsvp(event.id, 'declined')}
+                        className={`flex-1 py-1 px-2 rounded text-xs font-medium transition-colors ${
+                          event.myRsvp === 'declined'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-white border border-red-400 text-red-600 hover:bg-red-50'
+                        }`}
+                      >
+                        Can't Make It
+                      </button>
+                    </div>
+
+                    {/* Attendees */}
+                    {(event.rsvps?.attending?.length > 0 || event.rsvps?.declined?.length > 0) && (
+                      <div className="text-xs space-y-1">
+                        {event.rsvps?.attending?.length > 0 && (
+                          <p className="text-green-700">
+                            <span className="font-medium">Going:</span>{' '}
+                            {event.rsvps.attending.map(u => u.displayName).join(', ')}
+                          </p>
+                        )}
+                        {event.rsvps?.declined?.length > 0 && (
+                          <p className="text-red-600">
+                            <span className="font-medium">Can't go:</span>{' '}
+                            {event.rsvps.declined.map(u => u.displayName).join(', ')}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
 
