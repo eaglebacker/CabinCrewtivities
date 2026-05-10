@@ -9,8 +9,14 @@ export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [availability, setAvailability] = useState({});
   const [myDates, setMyDates] = useState([]);
+  const [events, setEvents] = useState({});
   const [selectedDay, setSelectedDay] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showAddEvent, setShowAddEvent] = useState(false);
+  const [activities, setActivities] = useState([]);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [eventDays, setEventDays] = useState(1);
+  const [addingEvent, setAddingEvent] = useState(false);
   const longPressTimer = useRef(null);
   const isLongPress = useRef(false);
 
@@ -18,17 +24,26 @@ export default function Calendar() {
   const month = currentDate.getMonth();
   const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
 
-  useEffect(() => {
+  const loadData = async () => {
     setLoading(true);
-    Promise.all([
-      api.getCalendar(monthStr),
-      api.getMyAvailability(monthStr)
-    ])
-      .then(([allAvail, myAvail]) => {
-        setAvailability(allAvail);
-        setMyDates(myAvail);
-      })
-      .finally(() => setLoading(false));
+    try {
+      const [allAvail, myAvail, calEvents] = await Promise.all([
+        api.getCalendar(monthStr),
+        api.getMyAvailability(monthStr),
+        api.getCalendarEvents(monthStr)
+      ]);
+      setAvailability(allAvail);
+      setMyDates(myAvail);
+      setEvents(calEvents);
+    } catch (err) {
+      console.error('Failed to load calendar data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
   }, [monthStr]);
 
   const firstDay = new Date(year, month, 1).getDay();
@@ -55,7 +70,6 @@ export default function Calendar() {
         setMyDates([...myDates, dateStr]);
       }
 
-      // Refresh all availability
       const allAvail = await api.getCalendar(monthStr);
       setAvailability(allAvail);
     } catch (err) {
@@ -95,6 +109,44 @@ export default function Calendar() {
   const handleTouchMove = () => {
     clearTimeout(longPressTimer.current);
   };
+
+  const openAddEvent = async () => {
+    try {
+      const acts = await api.getActivities();
+      setActivities(acts);
+      setSelectedActivity(null);
+      setEventDays(1);
+      setShowAddEvent(true);
+    } catch (err) {
+      console.error('Failed to load activities:', err);
+    }
+  };
+
+  const handleAddEvent = async () => {
+    if (!selectedActivity || !selectedDay) return;
+
+    setAddingEvent(true);
+    try {
+      await api.addCalendarEvent(selectedActivity, getDateStr(selectedDay), eventDays);
+      await loadData();
+      setShowAddEvent(false);
+    } catch (err) {
+      console.error('Failed to add event:', err);
+    } finally {
+      setAddingEvent(false);
+    }
+  };
+
+  const handleRemoveEvent = async (eventId) => {
+    try {
+      await api.deleteCalendarEvent(eventId);
+      await loadData();
+    } catch (err) {
+      console.error('Failed to remove event:', err);
+    }
+  };
+
+  const dayEvents = selectedDay ? (events[getDateStr(selectedDay)] || []) : [];
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4">
@@ -137,6 +189,7 @@ export default function Calendar() {
             const isAvailable = myDates.includes(dateStr);
             const usersAvailable = availability[dateStr] || [];
             const count = usersAvailable.length;
+            const dayHasEvents = events[dateStr]?.length > 0;
 
             return (
               <button
@@ -169,6 +222,9 @@ export default function Calendar() {
                     {count} free
                   </span>
                 )}
+                {dayHasEvents && (
+                  <span className="absolute bottom-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                )}
               </button>
             );
           })}
@@ -184,22 +240,132 @@ export default function Calendar() {
             &times;
           </button>
           <h3 className="font-medium mb-2 pr-6">
-            {MONTHS[month]} {selectedDay} - Available:
+            {MONTHS[month]} {selectedDay}
           </h3>
-          {availability[getDateStr(selectedDay)]?.length > 0 ? (
-            <ul className="text-sm text-gray-600">
-              {availability[getDateStr(selectedDay)].map(user => (
-                <li key={user.userId}>{user.displayName}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-sm text-gray-500">No one available</p>
+
+          {/* Events Section */}
+          {dayEvents.length > 0 && (
+            <div className="mb-3">
+              <p className="text-sm font-medium text-gray-600 mb-1">Events:</p>
+              <ul className="text-sm space-y-1">
+                {dayEvents.map(event => (
+                  <li key={event.id} className="flex justify-between items-center bg-blue-50 px-2 py-1 rounded">
+                    <span className="text-blue-800">{event.activityName}</span>
+                    <button
+                      onClick={() => handleRemoveEvent(event.id)}
+                      className="text-red-500 hover:text-red-700 text-xs"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           )}
+
+          {/* Availability Section */}
+          <div className="mb-3">
+            <p className="text-sm font-medium text-gray-600 mb-1">Available:</p>
+            {availability[getDateStr(selectedDay)]?.length > 0 ? (
+              <ul className="text-sm text-gray-600">
+                {availability[getDateStr(selectedDay)].map(user => (
+                  <li key={user.userId}>{user.displayName}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-sm text-gray-500">No one available</p>
+            )}
+          </div>
+
+          {/* Add Event Button */}
+          <button
+            onClick={openAddEvent}
+            className="w-full bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700"
+          >
+            + Add Event
+          </button>
+        </div>
+      )}
+
+      {/* Add Event Modal */}
+      {showAddEvent && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => e.target === e.currentTarget && setShowAddEvent(false)}
+        >
+          <div className="bg-white rounded-lg w-full max-w-sm">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h3 className="font-semibold">Add Event to {MONTHS[month]} {selectedDay}</h3>
+              <button
+                onClick={() => setShowAddEvent(false)}
+                className="text-gray-500 text-xl"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="p-4">
+              <label className="block text-sm font-medium mb-2">Select Activity:</label>
+              {activities.length === 0 ? (
+                <p className="text-gray-500 text-sm">No activities yet. Add one first!</p>
+              ) : (
+                <div className="space-y-2 max-h-48 overflow-y-auto mb-4">
+                  {activities.map(activity => (
+                    <button
+                      key={activity.id}
+                      onClick={() => setSelectedActivity(activity.id)}
+                      className={`w-full text-left p-2 rounded border transition-colors ${
+                        selectedActivity === activity.id
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <span className="font-medium">{activity.name}</span>
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({activity.avgRating.toFixed(1)} avg)
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <label className="block text-sm font-medium mb-2">Number of days:</label>
+              <div className="flex gap-2 mb-4">
+                {[1, 2, 3, 4, 5, 6, 7].map(num => (
+                  <button
+                    key={num}
+                    onClick={() => setEventDays(num)}
+                    className={`w-8 h-8 rounded ${
+                      eventDays === num
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mb-4">
+                {eventDays === 1
+                  ? 'Event will be added to this day only.'
+                  : `Event will be added to ${eventDays} consecutive days starting ${MONTHS[month]} ${selectedDay}.`
+                }
+              </p>
+
+              <button
+                onClick={handleAddEvent}
+                disabled={!selectedActivity || addingEvent}
+                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+              >
+                {addingEvent ? 'Adding...' : 'Add Event'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
       <p className="text-xs text-gray-500 mt-4 text-center">
-        Tap a day to toggle your availability. Long-press to see who's free.
+        Tap a day to toggle your availability. Long-press to see details & add events.
       </p>
     </div>
   );

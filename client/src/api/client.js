@@ -63,6 +63,16 @@ export const api = {
       body: JSON.stringify({ date, isAvailable }),
     }),
 
+  // Calendar Events
+  getCalendarEvents: (month) => request(`/api/calendar/events?month=${month}`),
+  addCalendarEvent: (activityId, date, days = 1) =>
+    request('/api/calendar/events', {
+      method: 'POST',
+      body: JSON.stringify({ activityId, date, days }),
+    }),
+  deleteCalendarEvent: (id) =>
+    request(`/api/calendar/events/${id}`, { method: 'DELETE' }),
+
   // Activities
   getActivities: () => request('/api/activities'),
   getActivity: (id) => request(`/api/activities/${id}`),

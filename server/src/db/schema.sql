@@ -47,6 +47,17 @@ CREATE TABLE IF NOT EXISTS votes (
   UNIQUE(activity_id, user_id)
 );
 
+-- Calendar events (activities scheduled on specific dates)
+CREATE TABLE IF NOT EXISTS calendar_events (
+  id SERIAL PRIMARY KEY,
+  activity_id INTEGER REFERENCES activities(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  created_by INTEGER REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(activity_id, date)
+);
+
 -- Index for faster calendar queries
 CREATE INDEX IF NOT EXISTS idx_availability_date ON availability(date);
 CREATE INDEX IF NOT EXISTS idx_activities_event_date ON activities(event_date);
+CREATE INDEX IF NOT EXISTS idx_calendar_events_date ON calendar_events(date);
