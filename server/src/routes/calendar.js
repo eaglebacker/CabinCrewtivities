@@ -222,16 +222,16 @@ router.post('/events', authMiddleware, async (req, res) => {
       }
     }
 
-    // Send email notification for the first day only (to avoid spam for multi-day events)
-    if (createdEvents.length > 0) {
-      notifyEventScheduled(db, {
-        activity_name: activityCheck.rows[0].name,
-        date: date,
-        created_by: req.user.userId
-      }, req.user.displayName).catch(err => {
-        console.error('Failed to send event notifications:', err);
-      });
-    }
+    // EMAIL NOTIFICATIONS - Uncomment when domain is verified in Resend
+    // if (createdEvents.length > 0) {
+    //   notifyEventScheduled(db, {
+    //     activity_name: activityCheck.rows[0].name,
+    //     date: date,
+    //     created_by: req.user.userId
+    //   }, req.user.displayName).catch(err => {
+    //     console.error('Failed to send event notifications:', err);
+    //   });
+    // }
 
     res.status(201).json({
       activityId,

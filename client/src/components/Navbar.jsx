@@ -72,6 +72,7 @@ export default function Navbar() {
                 Admin
               </Link>
             )}
+            {/* EMAIL NOTIFICATIONS - Uncomment when domain is verified in Resend
             <button
               onClick={toggleNotifications}
               disabled={loading}
@@ -84,6 +85,7 @@ export default function Navbar() {
                 style={{ color: emailNotifications ? '#FDE68A' : '#A16207' }}
               />
             </button>
+            */}
             <span className="text-sm text-amber-100">{user?.displayName}</span>
             <button
               onClick={handleLogout}

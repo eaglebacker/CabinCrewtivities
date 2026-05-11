@@ -59,10 +59,10 @@ router.post('/', authMiddleware, async (req, res) => {
 
     const activity = result.rows[0];
 
-    // Send email notifications (don't await - fire and forget)
-    notifyNewActivity(db, activity, req.user.displayName).catch(err => {
-      console.error('Failed to send activity notifications:', err);
-    });
+    // EMAIL NOTIFICATIONS - Uncomment when domain is verified in Resend
+    // notifyNewActivity(db, activity, req.user.displayName).catch(err => {
+    //   console.error('Failed to send activity notifications:', err);
+    // });
 
     res.status(201).json({
       id: activity.id,
