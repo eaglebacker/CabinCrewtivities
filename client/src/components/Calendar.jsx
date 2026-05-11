@@ -155,6 +155,20 @@ export default function Calendar() {
     }
   };
 
+  const getGoogleCalendarUrl = (event, dateStr) => {
+    const title = encodeURIComponent(event.activityName);
+    // Format date as YYYYMMDD for all-day event
+    const formattedDate = dateStr.replace(/-/g, '');
+    // End date is next day for all-day events
+    const endDate = new Date(dateStr);
+    endDate.setDate(endDate.getDate() + 1);
+    const formattedEndDate = endDate.toISOString().split('T')[0].replace(/-/g, '');
+
+    const details = encodeURIComponent('Cabin Crewtivities event');
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${formattedDate}/${formattedEndDate}&details=${details}`;
+  };
+
   const dayEvents = selectedDay ? (events[getDateStr(selectedDay)] || []) : [];
 
   return (
@@ -295,7 +309,7 @@ export default function Calendar() {
 
                     {/* Attendees */}
                     {(event.rsvps?.attending?.length > 0 || event.rsvps?.declined?.length > 0) && (
-                      <div className="text-xs space-y-1">
+                      <div className="text-xs space-y-1 mb-2">
                         {event.rsvps?.attending?.length > 0 && (
                           <p className="text-green-700">
                             <span className="font-medium">Going:</span>{' '}
@@ -310,6 +324,19 @@ export default function Calendar() {
                         )}
                       </div>
                     )}
+
+                    {/* Add to Google Calendar */}
+                    <a
+                      href={getGoogleCalendarUrl(event, getDateStr(selectedDay))}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-blue-600"
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                      </svg>
+                      Add to Google Calendar
+                    </a>
                   </div>
                 ))}
               </div>
