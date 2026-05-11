@@ -25,7 +25,7 @@ export default function VoteStars({ rating, avgRating, onRate, size = 'md' }) {
         ))}
       </div>
       {avgRating !== undefined && (
-        <div className="text-xs text-gray-500">
+        <div className="text-xs" style={{ color: '#8B4513' }}>
           Avg: {avgRating.toFixed(1)} / 5
         </div>
       )}

@@ -26,22 +26,23 @@ export default function ActivityCard({ activity, onShowDetails, onUpdate }) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 border">
+    <div className="rounded-lg shadow-sm p-4" style={{ backgroundColor: '#FFFAF5', border: '1px solid #DEB887' }}>
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1 min-w-0">
           <button
             onClick={() => onShowDetails(activity.id)}
-            className="font-medium text-left hover:text-blue-600 truncate block w-full"
+            className="font-medium text-left truncate block w-full hover:underline"
+            style={{ color: '#6B3410' }}
           >
             {activity.name}
           </button>
           {activity.eventDate && (
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-sm mt-1" style={{ color: '#8B4513' }}>
               {new Date(activity.eventDate).toLocaleDateString()}
               {activity.eventTime && ` at ${activity.eventTime}`}
             </p>
           )}
-          <p className="text-xs text-gray-400 mt-1">
+          <p className="text-xs mt-1" style={{ color: '#A0522D' }}>
             {voteCount} vote{voteCount !== 1 ? 's' : ''}
           </p>
         </div>

@@ -172,20 +172,26 @@ export default function Calendar() {
   const dayEvents = selectedDay ? (events[getDateStr(selectedDay)] || []) : [];
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
+    <div className="rounded-lg shadow-md p-4 border-2" style={{ backgroundColor: '#FDF8F0', borderColor: '#DEB887' }}>
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={prevMonth}
-          className="p-2 hover:bg-gray-100 rounded"
+          className="p-2 rounded transition-colors"
+          style={{ color: '#8B4513' }}
+          onMouseOver={(e) => e.target.style.backgroundColor = '#F5DEB3'}
+          onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
         >
           &lt;
         </button>
-        <h2 className="font-semibold text-lg">
+        <h2 className="font-semibold text-lg" style={{ color: '#6B3410' }}>
           {MONTHS[month]} {year}
         </h2>
         <button
           onClick={nextMonth}
-          className="p-2 hover:bg-gray-100 rounded"
+          className="p-2 rounded transition-colors"
+          style={{ color: '#8B4513' }}
+          onMouseOver={(e) => e.target.style.backgroundColor = '#F5DEB3'}
+          onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
         >
           &gt;
         </button>
@@ -193,14 +199,14 @@ export default function Calendar() {
 
       <div className="grid grid-cols-7 gap-1 mb-2">
         {DAYS.map(day => (
-          <div key={day} className="text-center text-xs text-gray-500 py-1">
+          <div key={day} className="text-center text-xs py-1" style={{ color: '#8B4513' }}>
             {day}
           </div>
         ))}
       </div>
 
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Loading...</div>
+        <div className="text-center py-8" style={{ color: '#8B4513' }}>Loading...</div>
       ) : (
         <div className="grid grid-cols-7 gap-1">
           {days.map((day, idx) => {
@@ -229,24 +235,21 @@ export default function Calendar() {
                 onTouchStart={() => handleTouchStart(day)}
                 onTouchEnd={() => handleTouchEnd(day)}
                 onTouchMove={handleTouchMove}
-                className={`
-                  aspect-square rounded-lg text-sm relative
-                  flex flex-col items-center justify-center
-                  transition-colors select-none
-                  ${isAvailable
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                    : 'bg-gray-50 hover:bg-gray-100'
-                  }
-                `}
+                className="aspect-square rounded-lg text-sm relative flex flex-col items-center justify-center transition-colors select-none"
+                style={{
+                  backgroundColor: isAvailable ? '#C8E6C9' : '#FFF8F0',
+                  color: isAvailable ? '#2D5A27' : '#6B3410',
+                  border: '1px solid #DEB887'
+                }}
               >
                 <span>{day}</span>
                 {count > 0 && (
-                  <span className="text-[10px] text-gray-500">
+                  <span className="text-[10px]" style={{ color: '#8B4513' }}>
                     {count} free
                   </span>
                 )}
                 {dayHasEvents && (
-                  <span className="absolute bottom-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                  <span className="absolute bottom-1 w-2 h-2 rounded-full" style={{ backgroundColor: '#8B4513' }}></span>
                 )}
               </button>
             );
@@ -255,29 +258,30 @@ export default function Calendar() {
       )}
 
       {selectedDay && (
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg relative">
+        <div className="mt-4 p-3 rounded-lg relative" style={{ backgroundColor: '#F5DEB3' }}>
           <button
             onClick={() => setSelectedDay(null)}
-            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full text-lg leading-none"
+            className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full text-lg leading-none transition-colors"
+            style={{ color: '#8B4513' }}
           >
             &times;
           </button>
-          <h3 className="font-medium mb-2 pr-6">
+          <h3 className="font-medium mb-2 pr-6" style={{ color: '#6B3410' }}>
             {MONTHS[month]} {selectedDay}
           </h3>
 
           {/* Events Section */}
           {dayEvents.length > 0 && (
             <div className="mb-3">
-              <p className="text-sm font-medium text-gray-600 mb-2">Events:</p>
+              <p className="text-sm font-medium mb-2" style={{ color: '#6B3410' }}>Events:</p>
               <div className="space-y-3">
                 {dayEvents.map(event => (
-                  <div key={event.id} className="bg-blue-50 p-3 rounded-lg">
+                  <div key={event.id} className="p-3 rounded-lg" style={{ backgroundColor: '#FDF8F0', border: '1px solid #DEB887' }}>
                     <div className="flex justify-between items-start mb-2">
-                      <span className="font-medium text-blue-800">{event.activityName}</span>
+                      <span className="font-medium" style={{ color: '#6B3410' }}>{event.activityName}</span>
                       <button
                         onClick={() => handleRemoveEvent(event.id)}
-                        className="text-red-500 hover:text-red-700 text-xs"
+                        className="text-red-600 hover:text-red-700 text-xs"
                       >
                         Remove
                       </button>
@@ -287,21 +291,21 @@ export default function Calendar() {
                     <div className="flex gap-2 mb-2">
                       <button
                         onClick={() => handleRsvp(event.id, 'attending')}
-                        className={`flex-1 py-1 px-2 rounded text-xs font-medium transition-colors ${
-                          event.myRsvp === 'attending'
-                            ? 'bg-green-600 text-white'
-                            : 'bg-white border border-green-600 text-green-600 hover:bg-green-50'
-                        }`}
+                        className="flex-1 py-1 px-2 rounded text-xs font-medium transition-colors"
+                        style={event.myRsvp === 'attending'
+                          ? { backgroundColor: '#2D5A27', color: 'white' }
+                          : { backgroundColor: '#FFFAF5', border: '1px solid #2D5A27', color: '#2D5A27' }
+                        }
                       >
                         Attending
                       </button>
                       <button
                         onClick={() => handleRsvp(event.id, 'declined')}
-                        className={`flex-1 py-1 px-2 rounded text-xs font-medium transition-colors ${
-                          event.myRsvp === 'declined'
-                            ? 'bg-red-600 text-white'
-                            : 'bg-white border border-red-400 text-red-600 hover:bg-red-50'
-                        }`}
+                        className="flex-1 py-1 px-2 rounded text-xs font-medium transition-colors"
+                        style={event.myRsvp === 'declined'
+                          ? { backgroundColor: '#A0522D', color: 'white' }
+                          : { backgroundColor: '#FFFAF5', border: '1px solid #A0522D', color: '#A0522D' }
+                        }
                       >
                         Can't Make It
                       </button>
@@ -311,13 +315,13 @@ export default function Calendar() {
                     {(event.rsvps?.attending?.length > 0 || event.rsvps?.declined?.length > 0) && (
                       <div className="text-xs space-y-1 mb-2">
                         {event.rsvps?.attending?.length > 0 && (
-                          <p className="text-green-700">
+                          <p style={{ color: '#2D5A27' }}>
                             <span className="font-medium">Going:</span>{' '}
                             {event.rsvps.attending.map(u => u.displayName).join(', ')}
                           </p>
                         )}
                         {event.rsvps?.declined?.length > 0 && (
-                          <p className="text-red-600">
+                          <p style={{ color: '#A0522D' }}>
                             <span className="font-medium">Can't go:</span>{' '}
                             {event.rsvps.declined.map(u => u.displayName).join(', ')}
                           </p>
@@ -330,7 +334,8 @@ export default function Calendar() {
                       href={getGoogleCalendarUrl(event, getDateStr(selectedDay))}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-blue-600"
+                      className="inline-flex items-center gap-1 text-xs hover:underline"
+                      style={{ color: '#8B4513' }}
                     >
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
@@ -345,22 +350,25 @@ export default function Calendar() {
 
           {/* Availability Section */}
           <div className="mb-3">
-            <p className="text-sm font-medium text-gray-600 mb-1">Available:</p>
+            <p className="text-sm font-medium mb-1" style={{ color: '#6B3410' }}>Available:</p>
             {availability[getDateStr(selectedDay)]?.length > 0 ? (
-              <ul className="text-sm text-gray-600">
+              <ul className="text-sm" style={{ color: '#6B3410' }}>
                 {availability[getDateStr(selectedDay)].map(user => (
                   <li key={user.userId}>{user.displayName}</li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-gray-500">No one available</p>
+              <p className="text-sm" style={{ color: '#8B4513' }}>No one available</p>
             )}
           </div>
 
           {/* Add Event Button */}
           <button
             onClick={openAddEvent}
-            className="w-full bg-blue-600 text-white py-2 rounded text-sm hover:bg-blue-700"
+            className="w-full text-white py-2 rounded text-sm transition-colors"
+            style={{ backgroundColor: '#2D5A27' }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#4A7C43'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#2D5A27'}
           >
             + Add Event
           </button>
@@ -373,35 +381,36 @@ export default function Calendar() {
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           onClick={(e) => e.target === e.currentTarget && setShowAddEvent(false)}
         >
-          <div className="bg-white rounded-lg w-full max-w-sm">
-            <div className="p-4 border-b flex justify-between items-center">
-              <h3 className="font-semibold">Add Event to {MONTHS[month]} {selectedDay}</h3>
+          <div className="rounded-lg w-full max-w-sm border-2" style={{ backgroundColor: '#FDF8F0', borderColor: '#DEB887' }}>
+            <div className="p-4 flex justify-between items-center" style={{ borderBottom: '2px solid #DEB887' }}>
+              <h3 className="font-semibold" style={{ color: '#6B3410' }}>Add Event to {MONTHS[month]} {selectedDay}</h3>
               <button
                 onClick={() => setShowAddEvent(false)}
-                className="text-gray-500 text-xl"
+                className="text-xl"
+                style={{ color: '#8B4513' }}
               >
                 &times;
               </button>
             </div>
 
             <div className="p-4">
-              <label className="block text-sm font-medium mb-2">Select Activity:</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#6B3410' }}>Select Activity:</label>
               {activities.length === 0 ? (
-                <p className="text-gray-500 text-sm">No activities yet. Add one first!</p>
+                <p className="text-sm" style={{ color: '#8B4513' }}>No activities yet. Add one first!</p>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto mb-4">
                   {activities.map(activity => (
                     <button
                       key={activity.id}
                       onClick={() => setSelectedActivity(activity.id)}
-                      className={`w-full text-left p-2 rounded border transition-colors ${
-                        selectedActivity === activity.id
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:bg-gray-50'
-                      }`}
+                      className="w-full text-left p-2 rounded transition-colors"
+                      style={selectedActivity === activity.id
+                        ? { border: '2px solid #2D5A27', backgroundColor: '#E8F5E9' }
+                        : { border: '1px solid #DEB887', backgroundColor: '#FFFAF5' }
+                      }
                     >
-                      <span className="font-medium">{activity.name}</span>
-                      <span className="text-xs text-gray-500 ml-2">
+                      <span className="font-medium" style={{ color: '#6B3410' }}>{activity.name}</span>
+                      <span className="text-xs ml-2" style={{ color: '#8B4513' }}>
                         ({activity.avgRating.toFixed(1)} avg)
                       </span>
                     </button>
@@ -409,23 +418,23 @@ export default function Calendar() {
                 </div>
               )}
 
-              <label className="block text-sm font-medium mb-2">Number of days:</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: '#6B3410' }}>Number of days:</label>
               <div className="flex gap-2 mb-4">
                 {[1, 2, 3, 4, 5, 6, 7].map(num => (
                   <button
                     key={num}
                     onClick={() => setEventDays(num)}
-                    className={`w-8 h-8 rounded ${
-                      eventDays === num
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
+                    className="w-8 h-8 rounded transition-colors"
+                    style={eventDays === num
+                      ? { backgroundColor: '#2D5A27', color: 'white' }
+                      : { backgroundColor: '#F5DEB3', color: '#6B3410' }
+                    }
                   >
                     {num}
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-gray-500 mb-4">
+              <p className="text-xs mb-4" style={{ color: '#8B4513' }}>
                 {eventDays === 1
                   ? 'Event will be added to this day only.'
                   : `Event will be added to ${eventDays} consecutive days starting ${MONTHS[month]} ${selectedDay}.`
@@ -435,7 +444,10 @@ export default function Calendar() {
               <button
                 onClick={handleAddEvent}
                 disabled={!selectedActivity || addingEvent}
-                className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                className="w-full text-white py-2 rounded disabled:opacity-50 transition-colors"
+                style={{ backgroundColor: '#2D5A27' }}
+                onMouseOver={(e) => !e.target.disabled && (e.target.style.backgroundColor = '#4A7C43')}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#2D5A27'}
               >
                 {addingEvent ? 'Adding...' : 'Add Event'}
               </button>
@@ -444,7 +456,7 @@ export default function Calendar() {
         </div>
       )}
 
-      <p className="text-xs text-gray-500 mt-4 text-center">
+      <p className="text-xs mt-4 text-center" style={{ color: '#8B4513' }}>
         Tap a day to toggle your availability. Long-press to see details & add events.
       </p>
     </div>

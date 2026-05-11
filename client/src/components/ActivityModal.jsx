@@ -89,7 +89,7 @@ export default function ActivityModal({ activityId, onClose, onUpdate }) {
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg p-6">Loading...</div>
+        <div className="rounded-lg p-6 border-2" style={{ backgroundColor: '#FDF8F0', borderColor: '#DEB887', color: '#8B4513' }}>Loading...</div>
       </div>
     );
   }
@@ -99,69 +99,75 @@ export default function ActivityModal({ activityId, onClose, onUpdate }) {
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="font-semibold text-lg">Activity Details</h2>
-          <button onClick={onClose} className="text-gray-500 text-xl">&times;</button>
+      <div className="rounded-lg w-full max-w-md max-h-[90vh] overflow-y-auto border-2" style={{ backgroundColor: '#FDF8F0', borderColor: '#DEB887' }}>
+        <div className="p-4 flex justify-between items-center" style={{ borderBottom: '2px solid #DEB887' }}>
+          <h2 className="font-semibold text-lg" style={{ color: '#6B3410' }}>Activity Details</h2>
+          <button onClick={onClose} className="text-xl" style={{ color: '#8B4513' }}>&times;</button>
         </div>
 
         {editing ? (
           <form onSubmit={handleSave} className="p-4 space-y-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#6B3410' }}>Name</label>
               <input
                 type="text"
                 value={editForm.name}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 rounded"
+                style={{ border: '2px solid #DEB887', backgroundColor: '#FFFAF5' }}
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Description</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#6B3410' }}>Description</label>
               <textarea
                 value={editForm.description}
                 onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 rounded"
+                style={{ border: '2px solid #DEB887', backgroundColor: '#FFFAF5' }}
                 rows={3}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Location</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#6B3410' }}>Location</label>
               <input
                 type="text"
                 value={editForm.location}
                 onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
-                className="w-full px-3 py-2 border rounded"
+                className="w-full px-3 py-2 rounded"
+                style={{ border: '2px solid #DEB887', backgroundColor: '#FFFAF5' }}
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium mb-1">Date</label>
+                <label className="block text-sm font-medium mb-1" style={{ color: '#6B3410' }}>Date</label>
                 <input
                   type="date"
                   value={editForm.eventDate}
                   onChange={(e) => setEditForm({ ...editForm, eventDate: e.target.value })}
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 rounded"
+                  style={{ border: '2px solid #DEB887', backgroundColor: '#FFFAF5' }}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Time</label>
+                <label className="block text-sm font-medium mb-1" style={{ color: '#6B3410' }}>Time</label>
                 <input
                   type="text"
                   value={editForm.eventTime}
                   onChange={(e) => setEditForm({ ...editForm, eventTime: e.target.value })}
                   placeholder="e.g. 7pm"
-                  className="w-full px-3 py-2 border rounded"
+                  className="w-full px-3 py-2 rounded"
+                  style={{ border: '2px solid #DEB887', backgroundColor: '#FFFAF5' }}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Links (one per line)</label>
+              <label className="block text-sm font-medium mb-1" style={{ color: '#6B3410' }}>Links (one per line)</label>
               <textarea
                 value={editForm.links}
                 onChange={(e) => setEditForm({ ...editForm, links: e.target.value })}
-                className="w-full px-3 py-2 border rounded text-sm"
+                className="w-full px-3 py-2 rounded text-sm"
+                style={{ border: '2px solid #DEB887', backgroundColor: '#FFFAF5' }}
                 rows={2}
                 placeholder="https://..."
               />
@@ -170,14 +176,18 @@ export default function ActivityModal({ activityId, onClose, onUpdate }) {
               <button
                 type="submit"
                 disabled={saving}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                className="text-white px-4 py-2 rounded disabled:opacity-50 transition-colors"
+                style={{ backgroundColor: '#2D5A27' }}
+                onMouseOver={(e) => !e.target.disabled && (e.target.style.backgroundColor = '#4A7C43')}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#2D5A27'}
               >
                 {saving ? 'Saving...' : 'Save'}
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="text-gray-600 px-4 py-2"
+                className="px-4 py-2"
+                style={{ color: '#8B4513' }}
               >
                 Cancel
               </button>
@@ -185,38 +195,38 @@ export default function ActivityModal({ activityId, onClose, onUpdate }) {
           </form>
         ) : (
           <div className="p-4">
-            <h3 className="text-xl font-semibold mb-2">{activity.name}</h3>
+            <h3 className="text-xl font-semibold mb-2" style={{ color: '#6B3410' }}>{activity.name}</h3>
 
             <div className="mb-4">
-              <p className="text-sm text-gray-500 mb-2">Your rating:</p>
+              <p className="text-sm mb-2" style={{ color: '#8B4513' }}>Your rating:</p>
               <VoteStars
                 rating={myRating}
                 avgRating={activity.avgRating}
                 onRate={handleRate}
               />
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm mt-1" style={{ color: '#8B4513' }}>
                 {activity.voteCount} vote{activity.voteCount !== 1 ? 's' : ''}
               </p>
             </div>
 
             {activity.description && (
               <div className="mb-4">
-                <p className="text-sm font-medium text-gray-600">Description</p>
-                <p className="text-gray-800">{activity.description}</p>
+                <p className="text-sm font-medium" style={{ color: '#8B4513' }}>Description</p>
+                <p style={{ color: '#6B3410' }}>{activity.description}</p>
               </div>
             )}
 
             {activity.location && (
               <div className="mb-4">
-                <p className="text-sm font-medium text-gray-600">Location</p>
-                <p className="text-gray-800">{activity.location}</p>
+                <p className="text-sm font-medium" style={{ color: '#8B4513' }}>Location</p>
+                <p style={{ color: '#6B3410' }}>{activity.location}</p>
               </div>
             )}
 
             {activity.eventDate && (
               <div className="mb-4">
-                <p className="text-sm font-medium text-gray-600">Date & Time</p>
-                <p className="text-gray-800">
+                <p className="text-sm font-medium" style={{ color: '#8B4513' }}>Date & Time</p>
+                <p style={{ color: '#6B3410' }}>
                   {new Date(activity.eventDate).toLocaleDateString()}
                   {activity.eventTime && ` at ${activity.eventTime}`}
                 </p>
@@ -225,8 +235,8 @@ export default function ActivityModal({ activityId, onClose, onUpdate }) {
 
             {activity.links?.length > 0 && (
               <div className="mb-4">
-                <p className="text-sm font-medium text-gray-600">Links</p>
-                <ul className="text-blue-600">
+                <p className="text-sm font-medium" style={{ color: '#8B4513' }}>Links</p>
+                <ul>
                   {activity.links.map((link, i) => (
                     <li key={i}>
                       <a
@@ -234,6 +244,7 @@ export default function ActivityModal({ activityId, onClose, onUpdate }) {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="hover:underline text-sm break-all"
+                        style={{ color: '#2D5A27' }}
                       >
                         {link}
                       </a>
@@ -245,8 +256,8 @@ export default function ActivityModal({ activityId, onClose, onUpdate }) {
 
             {activity.availableUsers?.length > 0 && (
               <div className="mb-4">
-                <p className="text-sm font-medium text-gray-600">Available on this date</p>
-                <ul className="text-gray-800 text-sm">
+                <p className="text-sm font-medium" style={{ color: '#8B4513' }}>Available on this date</p>
+                <ul className="text-sm" style={{ color: '#6B3410' }}>
                   {activity.availableUsers.map((u) => (
                     <li key={u.id}>{u.displayName}</li>
                   ))}
@@ -254,21 +265,23 @@ export default function ActivityModal({ activityId, onClose, onUpdate }) {
               </div>
             )}
 
-            <p className="text-xs text-gray-400 mb-4">
+            <p className="text-xs mb-4" style={{ color: '#A0522D' }}>
               Added by {activity.createdBy?.displayName}
             </p>
 
             {canEdit && (
-              <div className="flex gap-2 pt-2 border-t">
+              <div className="flex gap-2 pt-2" style={{ borderTop: '1px solid #DEB887' }}>
                 <button
                   onClick={() => setEditing(true)}
-                  className="text-blue-600 text-sm hover:underline"
+                  className="text-sm hover:underline"
+                  style={{ color: '#2D5A27' }}
                 >
                   Edit
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="text-red-600 text-sm hover:underline"
+                  className="text-sm hover:underline"
+                  style={{ color: '#A0522D' }}
                 >
                   Delete
                 </button>

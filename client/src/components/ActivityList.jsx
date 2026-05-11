@@ -44,46 +44,55 @@ export default function ActivityList() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
+    <div className="rounded-lg shadow-md p-4 border-2" style={{ backgroundColor: '#FDF8F0', borderColor: '#DEB887' }}>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="font-semibold text-lg">Activities</h2>
+        <h2 className="font-semibold text-lg" style={{ color: '#6B3410' }}>Activities</h2>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+          className="text-sm text-white px-3 py-1 rounded transition-colors"
+          style={{ backgroundColor: '#2D5A27' }}
+          onMouseOver={(e) => e.target.style.backgroundColor = '#4A7C43'}
+          onMouseOut={(e) => e.target.style.backgroundColor = '#2D5A27'}
         >
           + Add
         </button>
       </div>
 
       {showAddForm && (
-        <form onSubmit={handleAdd} className="mb-4 p-3 bg-gray-50 rounded-lg">
+        <form onSubmit={handleAdd} className="mb-4 p-3 rounded-lg" style={{ backgroundColor: '#F5DEB3' }}>
           <input
             type="text"
             value={newActivity.name}
             onChange={(e) => setNewActivity({ ...newActivity, name: e.target.value })}
             placeholder="Activity name"
-            className="w-full px-3 py-2 border rounded mb-2"
+            className="w-full px-3 py-2 rounded mb-2"
+            style={{ border: '2px solid #DEB887', backgroundColor: '#FFFAF5' }}
             required
           />
           <textarea
             value={newActivity.description}
             onChange={(e) => setNewActivity({ ...newActivity, description: e.target.value })}
             placeholder="Description (optional)"
-            className="w-full px-3 py-2 border rounded mb-2 text-sm"
+            className="w-full px-3 py-2 rounded mb-2 text-sm"
+            style={{ border: '2px solid #DEB887', backgroundColor: '#FFFAF5' }}
             rows={2}
           />
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={adding}
-              className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 disabled:opacity-50"
+              className="text-white px-3 py-1 rounded text-sm disabled:opacity-50 transition-colors"
+              style={{ backgroundColor: '#2D5A27' }}
+              onMouseOver={(e) => !e.target.disabled && (e.target.style.backgroundColor = '#4A7C43')}
+              onMouseOut={(e) => e.target.style.backgroundColor = '#2D5A27'}
             >
               {adding ? 'Adding...' : 'Add Activity'}
             </button>
             <button
               type="button"
               onClick={() => setShowAddForm(false)}
-              className="text-gray-600 px-3 py-1 text-sm"
+              className="px-3 py-1 text-sm"
+              style={{ color: '#8B4513' }}
             >
               Cancel
             </button>
@@ -92,9 +101,9 @@ export default function ActivityList() {
       )}
 
       {loading ? (
-        <div className="text-center py-8 text-gray-500">Loading...</div>
+        <div className="text-center py-8" style={{ color: '#8B4513' }}>Loading...</div>
       ) : activities.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8" style={{ color: '#8B4513' }}>
           No activities yet. Add one to get started!
         </div>
       ) : (

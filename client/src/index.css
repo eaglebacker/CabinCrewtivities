@@ -3,5 +3,18 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-50 min-h-screen;
+  @apply min-h-screen;
+  background: linear-gradient(135deg, #f5f0e8 0%, #e8e0d5 100%);
+}
+
+/* Custom cabin theme colors */
+:root {
+  --cabin-brown: #8B4513;
+  --cabin-brown-dark: #6B3410;
+  --cabin-brown-light: #A0522D;
+  --cabin-green: #2D5A27;
+  --cabin-green-light: #4A7C43;
+  --cabin-cream: #FDF8F0;
+  --cabin-wood: #DEB887;
+  --cabin-wood-light: #F5DEB3;
 }
