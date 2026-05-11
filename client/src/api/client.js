@@ -106,4 +106,12 @@ export const api = {
 
   // Users
   getUsers: () => request('/api/users'),
+
+  // Settings
+  getSettings: () => request('/api/users/settings'),
+  updateSettings: (settings) =>
+    request('/api/users/settings', {
+      method: 'PUT',
+      body: JSON.stringify(settings),
+    }),
 };

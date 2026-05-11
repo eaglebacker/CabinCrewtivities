@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const authMiddleware = require('../middleware/auth');
+const { notifyEventScheduled } = require('../services/email');
 
 const router = express.Router();
 
@@ -219,6 +220,17 @@ router.post('/events', authMiddleware, async (req, res) => {
       } catch (e) {
         // Skip duplicates
       }
+    }
+
+    // Send email notification for the first day only (to avoid spam for multi-day events)
+    if (createdEvents.length > 0) {
+      notifyEventScheduled(db, {
+        activity_name: activityCheck.rows[0].name,
+        date: date,
+        created_by: req.user.userId
+      }, req.user.displayName).catch(err => {
+        console.error('Failed to send event notifications:', err);
+      });
     }
 
     res.status(201).json({

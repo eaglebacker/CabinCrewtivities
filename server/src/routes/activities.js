@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const authMiddleware = require('../middleware/auth');
+const { notifyNewActivity } = require('../services/email');
 
 const router = express.Router();
 
@@ -57,6 +58,12 @@ router.post('/', authMiddleware, async (req, res) => {
     `, [name, description, location, eventDate, eventTime, linksJson, req.user.userId]);
 
     const activity = result.rows[0];
+
+    // Send email notifications (don't await - fire and forget)
+    notifyNewActivity(db, activity, req.user.displayName).catch(err => {
+      console.error('Failed to send activity notifications:', err);
+    });
+
     res.status(201).json({
       id: activity.id,
       name: activity.name,
